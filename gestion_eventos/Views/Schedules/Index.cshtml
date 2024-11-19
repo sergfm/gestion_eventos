@@ -1,0 +1,39 @@
+﻿@model IEnumerable<gestion_eventos.Models.Schedule>
+
+@{
+    ViewData["Title"] = "Schedules";
+}
+
+<h1>Schedules</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Activity Description</th>
+            <th>Event</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var schedule in Model)
+        {
+            <tr>
+                <td>@schedule.ActivityDescription</td>
+                <td>@schedule.Event?.Title</td>
+                <td>@schedule.StartTime.ToString("g")</td>
+                <td>@schedule.EndTime.ToString("g")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@schedule.ScheduleId" class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@schedule.ScheduleId" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Delete" asp-route-id="@schedule.ScheduleId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Create" class="btn btn-success">Add New Schedule</a>
+</div>

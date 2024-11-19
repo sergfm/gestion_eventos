@@ -1,0 +1,131 @@
+﻿/* login-styles.css */
+
+/* Estilo para el mensaje de error */
+.error-message {
+    color: #ff4b4b;
+    background-color: rgba(255, 75, 75, 0.1);
+    border: 1px solid #ff4b4b;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    border-radius: 5px;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(255, 75, 75, 0.5);
+    animation: fadeIn 0.5s ease-out;
+    backdrop-filter: blur(5px);
+    text-shadow: 0 0 5px rgba(255, 75, 75, 0.6);
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Resto de los estilos ya proporcionados */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: radial-gradient(circle at 50% 50%, #1a1a1a, #111);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 78vw;
+    height: 78vh;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 350px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.2);
+    text-align: center;
+}
+
+    .login-box h2 {
+        font-size: 2rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        color: #00e6e6;
+        text-shadow: 0px 0px 10px #00e6e6;
+    }
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #00e6e6;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+}
+
+    .form-control::placeholder {
+        color: #b3ffff;
+        opacity: 0.8;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 10px #00e6e6, 0 0 20px #00e6e6;
+    }
+
+.btn-login {
+    width: 100%;
+    padding: 0.9rem;
+    background: linear-gradient(90deg, #00e6e6, #009999);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 230, 230, 0.5), 0 0 15px rgba(0, 230, 230, 0.3);
+}
+
+    .btn-login:hover {
+        background: linear-gradient(90deg, #009999, #007777);
+        box-shadow: 0 0 15px rgba(0, 230, 230, 0.7), 0 0 20px rgba(0, 230, 230, 0.5);
+    }
+
+.register-link {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #b3ffff;
+}
+
+    .register-link a {
+        color: #00e6e6;
+        font-weight: bold;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .register-link a:hover {
+            color: #009999;
+        }

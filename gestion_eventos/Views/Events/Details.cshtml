@@ -1,0 +1,33 @@
+﻿@model gestion_eventos.Models.Event
+
+@{
+    ViewData["Title"] = "Detalles del Evento";
+}
+
+<h1>Detalles del Evento</h1>
+
+<div>
+    <h4>Evento</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Título</dt>
+        <dd class="col-sm-10">@Model.Title</dd>
+
+        <dt class="col-sm-2">Descripción</dt>
+        <dd class="col-sm-10">@Model.Description</dd>
+
+        <dt class="col-sm-2">Fecha</dt>
+        <dd class="col-sm-10">@Model.Date</dd>
+
+        <dt class="col-sm-2">Ubicación</dt>
+        <dd class="col-sm-10">@Model.Location</dd>
+
+        <dt class="col-sm-2">Tickets Disponibles</dt>
+        <dd class="col-sm-10">@Model.AvailableTickets</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.EventId" class="btn btn-primary">Editar</a> |
+    <a asp-action="Index" class="btn btn-secondary">Volver a la Lista</a>
+</div>

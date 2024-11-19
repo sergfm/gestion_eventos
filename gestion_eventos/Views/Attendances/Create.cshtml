@@ -1,0 +1,28 @@
+﻿@model gestion_eventos.Models.Attendance
+
+<h2>Create Attendance</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="EventId" class="control-label">Event</label>
+        <select asp-for="EventId" class="form-control" asp-items="@(new SelectList(ViewBag.Events, "EventId", "Title"))">
+            <option value="">Select Event</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="PersonId" class="control-label">Person</label>
+        <select asp-for="PersonId" class="form-control" asp-items="@(new SelectList(ViewBag.People, "PersonId", "FullName"))">
+            <option value="">Select Person</option>
+        </select>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" asp-for="IsPresent" class="form-check-input" />
+        <label asp-for="IsPresent" class="form-check-label">Is Present</label>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
