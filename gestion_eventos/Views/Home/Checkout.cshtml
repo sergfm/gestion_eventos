@@ -1,0 +1,34 @@
+﻿@model gestion_eventos.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h2>Checkout</h2>
+
+<form asp-action="ConfirmarCompra" method="post">
+    <div class="form-group mb-3">
+        <label asp-for="CardHolderName" class="form-label">Nombre del Titular</label>
+        <input asp-for="CardHolderName" class="form-control" placeholder="Nombre del titular" />
+        <span asp-validation-for="CardHolderName" class="text-danger"></span>
+    </div>
+    <div class="form-group mb-3">
+        <label asp-for="CardNumber" class="form-label">Número de Tarjeta</label>
+        <input asp-for="CardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="16" />
+        <span asp-validation-for="CardNumber" class="text-danger"></span>
+    </div>
+    <div class="row">
+        <div class="form-group mb-3 col-md-6">
+            <label asp-for="ExpiryDate" class="form-label">Fecha de Vencimiento</label>
+            <input asp-for="ExpiryDate" class="form-control" placeholder="MM/YY" maxlength="5" />
+            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3 col-md-6">
+            <label asp-for="CVV" class="form-label">CVV</label>
+            <input asp-for="CVV" class="form-control" placeholder="123" maxlength="3" />
+            <span asp-validation-for="CVV" class="text-danger"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Confirmar Compra</button>
+    <a asp-action="Carrito" class="btn btn-secondary">Cancelar</a>
+</form>

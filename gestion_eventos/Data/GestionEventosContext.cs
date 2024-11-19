@@ -18,6 +18,11 @@ namespace gestion_eventos.Data
         public DbSet<Snack> Snacks { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<TicketPurchase> TicketPurchases { get; set; }
+        public decimal Price { get; set; } // Precio del evento
+        public DbSet<ShoppingCart> ShoppingCart { get; set; }
+
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,6 +34,14 @@ namespace gestion_eventos.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.UserId).HasName("PK_Users");
+                entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.Password).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.Role).IsRequired().HasMaxLength(50);
+            });
+
             modelBuilder.Entity<Attendance>(entity =>
             {
                 entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69261CD51B8BDE");

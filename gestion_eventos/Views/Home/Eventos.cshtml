@@ -1,0 +1,49 @@
+﻿@model IEnumerable<gestion_eventos.Models.Event>
+
+@{
+    ViewData["Title"] = "Eventos Disponibles";
+}
+
+<h2>Eventos Disponibles</h2>
+
+@if (!Model.Any())
+{
+    <p>No hay eventos disponibles en este momento.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+                <th>Ubicación</th>
+                <th>Boletos Disponibles</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var evento in Model)
+            {
+                <tr>
+                    <td>@evento.Title</td>
+                    <td>@evento.Description</td>
+                    <td>@evento.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@evento.Location</td>
+                    <td>@evento.AvailableTickets</td>
+                    <td>
+                        @if (evento.AvailableTickets > 0)
+                        {
+                            <a asp-action="ComprarEntrada" asp-route-id="@evento.EventId" class="btn btn-primary">Comprar Entrada</a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary" disabled>No Disponible</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

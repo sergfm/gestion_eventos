@@ -3,17 +3,27 @@ using gestion_eventos.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar el servicio DbContext para utilizar SQL Server
+// Configurar DbContext para utilizar SQL Server
 builder.Services.AddDbContext<GestionEventosContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Habilitar servicios de sesión
-builder.Services.AddSession();
+// Configurar servicios de sesión con opciones específicas
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Tiempo de inactividad
+    options.Cookie.HttpOnly = true; // Seguridad adicional para cookies
+    options.Cookie.IsEssential = true; // Necesario para el funcionamiento de la sesión
+});
 
-// Habilitar controladores con vistas
-builder.Services.AddControllersWithViews();
+// Habilitar controladores con vistas y configurar validaciones
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true; // Habilitar validación en cliente
+    })
+    .AddDataAnnotationsLocalization(); // Habilitar mensajes de validación localizados
 
-// Habilitar CORS
+// Configurar CORS para permitir todas las solicitudes (si es necesario)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", policy =>
@@ -26,22 +36,25 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Configuración para entornos de producción y desarrollo
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
-app.UseStaticFiles();
+app.UseHttpsRedirection(); // Redirigir a HTTPS
+app.UseStaticFiles(); // Archivos estáticos (CSS, JS, etc.)
 
 app.UseRouting();
 
-// Aplica la política de CORS antes de `UseAuthorization` y `UseSession`
+// Aplica la política de CORS antes de las sesiones y autorizaciones
 app.UseCors("AllowAllOrigins");
 
-app.UseSession();
+app.UseSession(); // Middleware de sesiones
+app.UseAuthorization(); // Middleware de autorización
 
-app.UseAuthorization();
-
+// Configurar las rutas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");

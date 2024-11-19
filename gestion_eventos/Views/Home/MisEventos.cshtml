@@ -1,0 +1,41 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Mis Eventos";
+}
+
+<h2>Mis Eventos</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No tienes eventos comprados.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título del Evento</th>
+                <th>Fecha</th>
+                <th>Cantidad de Boletos</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var evento in Model)
+            {
+                <tr>
+                    <td>@evento.Title</td>
+                    <td>@evento.Date.ToString("dd/MM/yyyy")</td>
+                    <td>@evento.TicketsBought</td>
+                    <td>
+                        <form asp-action="EliminarEvento" method="post">
+                            <input type="hidden" name="eventId" value="@evento.EventId" />
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

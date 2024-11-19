@@ -13,6 +13,10 @@ namespace gestion_eventos.Models
 
         [Required]
         [StringLength(100)]
-        public string Password { get; set; }  // Considera encriptar las contraseñas
+        public string Password { get; set; }  // Considera encriptar las contraseñas para mayor seguridad
+
+        [Required]
+        [StringLength(50)]
+        public string Role { get; set; }  // Admin, Cliente, Vendedor
     }
 }

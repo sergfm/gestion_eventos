@@ -36,24 +36,48 @@
                     </button>
                     <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul class="navbar-nav flex-grow-1">
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Events" asp-action="Index">Eventos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="People" asp-action="Index">Personas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Tickets" asp-action="Index">Entradas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Attendances" asp-action="Index">Asistencia</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="Snacks" asp-action="Index">Snacks</a>
-                            </li>
+                            @if (Context.Session.GetString("Role") == "Admin")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Events" asp-action="Index">Eventos</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="People" asp-action="Index">Personas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Tickets" asp-action="Index">Entradas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Attendances" asp-action="Index">Asistencia</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Snacks" asp-action="Index">Snacks</a>
+                                </li>
+                            }
+                            @if (Context.Session.GetString("Role") == "Cliente")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Eventos">Eventos</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="MisEventos">Mis Eventos</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-light d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Carrito">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/126/126083.png" alt="Carrito" style="width: 24px; height: 24px;">
+                                        Carrito
+                                    </a>
+                                </li>
+                            }
+                            @if (Context.Session.GetString("Role") == "Vendedor")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Ventas">Ventas</a>
+                                </li>
+                            }
                         </ul>
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
@@ -74,7 +98,9 @@
     </div>
 
     <!-- Scripts de JavaScript -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.13/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

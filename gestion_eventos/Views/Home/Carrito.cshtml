@@ -1,0 +1,32 @@
+﻿<h2>Carrito de Compras</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Evento</th>
+            <th>Cantidad</th>
+            <th>Precio por Boleto</th>
+            <th>Total</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.TicketsQuantity</td>
+                <td>$@item.PricePerTicket</td>
+                <td>$@item.TotalPrice</td>
+                <td>
+                    <form asp-action="EliminarDelCarrito" method="post">
+                        <input type="hidden" name="cartId" value="@item.CartId" />
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Checkout" class="btn btn-primary">Checkout</a>

@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Ventas Realizadas";
+}
+
+<h2>Ventas Realizadas</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Evento</th>
+            <th>Entradas Vendidas</th>
+            <th>Total Recaudado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var venta in ViewBag.Ventas)
+        {
+            <tr>
+                <td>@venta.Item1</td> <!-- Acceso al primer elemento de la tupla (Evento) -->
+                <td>@venta.Item2</td> <!-- Acceso al segundo elemento de la tupla (Entradas) -->
+                <td>@venta.Item3.ToString("C")</td> <!-- Acceso al tercer elemento de la tupla (Total) -->
+            </tr>
+        }
+    </tbody>
+</table>

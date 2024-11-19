@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using gestion_eventos.Data;
 
@@ -11,9 +12,11 @@ using gestion_eventos.Data;
 namespace gestion_eventos.Migrations
 {
     [DbContext(typeof(GestionEventosContext))]
-    partial class GestionEventosContextModelSnapshot : ModelSnapshot
+    [Migration("20241119124659_AddTicketPurchaseModel")]
+    partial class AddTicketPurchaseModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,9 +75,6 @@ namespace gestion_eventos.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -138,37 +138,6 @@ namespace gestion_eventos.Migrations
                     b.HasIndex("EventId");
 
                     b.ToTable("Schedules");
-                });
-
-            modelBuilder.Entity("gestion_eventos.Models.ShoppingCart", b =>
-                {
-                    b.Property<int>("CartId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
-
-                    b.Property<int>("EventId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("PricePerTicket")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TicketsQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CartId");
-
-                    b.HasIndex("EventId");
-
-                    b.ToTable("ShoppingCart");
                 });
 
             modelBuilder.Entity("gestion_eventos.Models.Snack", b =>
@@ -312,17 +281,6 @@ namespace gestion_eventos.Migrations
                 {
                     b.HasOne("gestion_eventos.Models.Event", "Event")
                         .WithMany("Schedules")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("gestion_eventos.Models.ShoppingCart", b =>
-                {
-                    b.HasOne("gestion_eventos.Models.Event", "Event")
-                        .WithMany()
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

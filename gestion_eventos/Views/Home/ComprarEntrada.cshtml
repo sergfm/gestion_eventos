@@ -1,0 +1,25 @@
+﻿@model PurchaseTicketViewModel
+
+<h2>Comprar Entrada</h2>
+
+<form asp-action="ComprarEntrada" method="post">
+    <input type="hidden" asp-for="EventId" />
+    <div class="form-group">
+        <label>Evento</label>
+        <input type="text" value="@Model.EventTitle" class="form-control" readonly />
+    </div>
+    <div class="form-group">
+        <label>Boletos Disponibles</label>
+        <input type="number" value="@Model.AvailableTickets" class="form-control" readonly />
+    </div>
+    <div class="form-group">
+        <label asp-for="TicketsToBuy"></label>
+        <input asp-for="TicketsToBuy" class="form-control" type="number" min="1" max="@Model.AvailableTickets" />
+        <span asp-validation-for="TicketsToBuy" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Precio por Boleto: </label>
+        <p>$@Model.Price</p>
+    </div>
+    <button type="submit" class="btn btn-success">Agregar al Carrito</button>
+</form>
