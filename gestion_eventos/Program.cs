@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using gestion_eventos.Data;
 
@@ -34,6 +37,22 @@ builder.Services.AddCors(options =>
     });
 });
 
+// **Configuración de Autenticación JWT**
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
 var app = builder.Build();
 
 // Configuración para entornos de producción y desarrollo
@@ -52,6 +71,9 @@ app.UseRouting();
 app.UseCors("AllowAllOrigins");
 
 app.UseSession(); // Middleware de sesiones
+
+// **Habilitar autenticación antes de autorización**
+app.UseAuthentication();
 app.UseAuthorization(); // Middleware de autorización
 
 // Configurar las rutas

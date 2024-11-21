@@ -18,5 +18,6 @@ namespace gestion_eventos.Models
         [Required]
         [StringLength(50)]
         public string Role { get; set; }  // Admin, Cliente, Vendedor
+        public string Email { get; set; } // Esta propiedad debe existir
     }
 }

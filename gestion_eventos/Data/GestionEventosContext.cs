@@ -17,10 +17,13 @@ namespace gestion_eventos.Data
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<Snack> Snacks { get; set; }
         public DbSet<User> Users { get; set; }
+
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<TicketPurchase> TicketPurchases { get; set; }
         public decimal Price { get; set; } // Precio del evento
         public DbSet<ShoppingCart> ShoppingCart { get; set; }
+       
+
 
 
 

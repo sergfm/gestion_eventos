@@ -55,6 +55,22 @@ namespace gestion_eventos.Controllers
             return View();
         }
 
+        // Endpoint para inicio de sesión con API
+        [HttpPost("api/login")]
+        public async Task<IActionResult> ApiLogin([FromBody] LoginRequest request)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == request.Email && u.Password == request.Password);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Credenciales incorrectas." });
+            }
+
+            // Generar token de ejemplo (aquí podrías implementar un token JWT)
+            var token = Guid.NewGuid().ToString();
+            return Ok(new { token });
+        }
+
         // Cerrar sesión
         public IActionResult Logout()
         {
@@ -71,8 +87,15 @@ namespace gestion_eventos.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(User user)
         {
-            if (true)
+            if (ModelState.IsValid) // Valida si el modelo es válido según las reglas definidas
             {
+                // Validar que el correo electrónico no esté vacío o nulo
+                if (string.IsNullOrEmpty(user.Email))
+                {
+                    ModelState.AddModelError("Email", "El correo electrónico es obligatorio.");
+                    return View(user); // Retorna la vista con el mensaje de error
+                }
+
                 // Agregar usuario a la base de datos
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
@@ -80,7 +103,31 @@ namespace gestion_eventos.Controllers
                 // Redirigir al inicio de sesión tras el registro exitoso
                 return RedirectToAction("Login");
             }
-            return View(user);
+
+            return View(user); // Retorna la vista si hay errores de validación
+        }
+
+        // Endpoint para registro con API
+        [HttpPost("api/register")]
+        public async Task<IActionResult> ApiRegister([FromBody] RegisterRequest request)
+        {
+            if (_context.Users.Any(u => u.Email == request.Email))
+            {
+                return BadRequest(new { message = "El correo electrónico ya está registrado." });
+            }
+
+            var user = new User
+            {
+                Username = request.UserName,
+                Email = request.Email,
+                Password = request.Password, // Nota: Considera encriptar la contraseña
+                Role = "Cliente" // Asignar rol predeterminado
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Usuario registrado exitosamente." });
         }
     }
 }
