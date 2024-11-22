@@ -1,0 +1,23 @@
+﻿@{
+    var userId = Context.Session.GetString("UserId");
+    var cartItems = new List<dynamic>();
+
+    if (!string.IsNullOrEmpty(userId))
+    {
+        cartItems = ViewData["CartItems"] as List<dynamic> ?? new List<dynamic>();
+    }
+
+    var itemCount = cartItems.Sum(c => c.TicketsQuantity);
+}
+<div id="cart-container" class="position-fixed top-0 end-0 m-3" style="z-index: 1050;">
+    <a href="@Url.Action("Carrito", "Home")" class="btn btn-outline-secondary position-relative">
+        <img src="https://cdn-icons-png.flaticon.com/512/126/126083.png" alt="Carrito" style="width: 32px; height: 32px;">
+        @if (itemCount > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                @itemCount
+                <span class="visually-hidden">items en carrito</span>
+            </span>
+        }
+    </a>
+</div>

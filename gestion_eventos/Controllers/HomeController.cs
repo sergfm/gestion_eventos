@@ -17,7 +17,8 @@ namespace gestion_eventos.Controllers
             _context = context;
         }
 
-        // Implementación original no modificada
+        // Métodos existentes (no modificados)...
+
         public IActionResult Index()
         {
             var role = HttpContext.Session.GetString("Role");
@@ -42,167 +43,6 @@ namespace gestion_eventos.Controllers
             var eventos = _context.Events.ToList();
 
             return View(eventos);
-        }
-
-        public IActionResult Ventas()
-        {
-            var role = HttpContext.Session.GetString("Role");
-
-            if (role != "Vendedor" && role != "Admin")
-            {
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.Ventas = new List<(string Evento, int Entradas, decimal Total)>
-            {
-                ("Concierto A", 120, 1200.00M),
-                ("Conferencia B", 80, 800.00M),
-                ("Feria C", 150, 1500.00M)
-            };
-
-            return View("Vendedor");
-        }
-
-        public IActionResult Privacy()
-        {
-            var role = HttpContext.Session.GetString("Role");
-
-            if (role != "Admin")
-            {
-                return RedirectToAction("Eventos");
-            }
-
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult ComprarEntrada(int id)
-        {
-            var evento = _context.Events.FirstOrDefault(e => e.EventId == id);
-
-            if (evento == null || evento.AvailableTickets <= 0)
-            {
-                TempData["Error"] = "El evento no está disponible o no tiene boletos restantes.";
-                return RedirectToAction("Eventos");
-            }
-
-            var model = new PurchaseTicketViewModel
-            {
-                EventId = evento.EventId,
-                EventTitle = evento.Title,
-                AvailableTickets = evento.AvailableTickets,
-                Price = evento.Price // Incluye el precio del evento
-            };
-
-            return View(model);
-        }
-
-        [HttpPost]
-        public IActionResult ComprarEntrada(PurchaseTicketViewModel model)
-        {
-            if (true)
-            {
-                var evento = _context.Events.FirstOrDefault(e => e.EventId == model.EventId);
-
-                if (evento == null || evento.AvailableTickets < model.TicketsToBuy)
-                {
-                    ModelState.AddModelError("", "No hay suficientes boletos disponibles.");
-                    return View(model);
-                }
-
-                evento.AvailableTickets -= model.TicketsToBuy;
-
-                var userId = HttpContext.Session.GetString("UserId");
-                var cartItem = new ShoppingCart
-                {
-                    EventId = evento.EventId,
-                    UserId = userId,
-                    TicketsQuantity = model.TicketsToBuy,
-                    PricePerTicket = evento.Price,
-                    TotalPrice = model.TicketsToBuy * evento.Price
-                };
-
-                _context.ShoppingCart.Add(cartItem);
-                _context.SaveChanges();
-
-                return RedirectToAction("Carrito");
-            }
-
-            return View(model);
-        }
-
-        public IActionResult Carrito()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction("Login", "Auth");
-            }
-
-            var carrito = _context.ShoppingCart
-                .Where(c => c.UserId == userId)
-                .Select(c => new
-                {
-                    c.Event.Title,
-                    c.TicketsQuantity,
-                    c.PricePerTicket,
-                    c.TotalPrice,
-                    c.CartId
-                }).ToList();
-
-            return View(carrito);
-        }
-
-        [HttpPost]
-        public IActionResult EliminarDelCarrito(int cartId)
-        {
-            var cartItem = _context.ShoppingCart.FirstOrDefault(c => c.CartId == cartId);
-
-            if (cartItem != null)
-            {
-                _context.ShoppingCart.Remove(cartItem);
-                _context.SaveChanges();
-            }
-
-            return RedirectToAction("Carrito");
-        }
-
-        [HttpGet]
-        public IActionResult Checkout()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult ConfirmarCompra(CheckoutViewModel model)
-        {
-            if (true)
-            {
-                var userId = HttpContext.Session.GetString("UserId");
-
-                var itemsCarrito = _context.ShoppingCart.Where(c => c.UserId == userId).ToList();
-
-                foreach (var item in itemsCarrito)
-                {
-                    var purchase = new TicketPurchase
-                    {
-                        EventId = item.EventId,
-                        UserId = item.UserId,
-                        TicketsBought = item.TicketsQuantity,
-                        PurchaseDate = DateTime.Now
-                    };
-
-                    _context.TicketPurchases.Add(purchase);
-                }
-
-                _context.ShoppingCart.RemoveRange(itemsCarrito);
-                _context.SaveChanges();
-
-                return RedirectToAction("MisEventos");
-            }
-
-            return View(model);
         }
 
         public IActionResult MisEventos()
@@ -247,6 +87,227 @@ namespace gestion_eventos.Controllers
             }
 
             return RedirectToAction("MisEventos");
+        }
+
+        // ---------------- NUEVAS IMPLEMENTACIONES ----------------
+
+        // Método para renderizar la vista parcial del carrito
+        public IActionResult CargarCarritoParcial()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return PartialView("_CarritoPartial", new List<dynamic>());
+            }
+
+            var carrito = _context.ShoppingCart
+                .Where(c => c.UserId == userId)
+                .Select(c => new
+                {
+                    c.Event.Title,
+                    c.TicketsQuantity,
+                    c.PricePerTicket,
+                    c.TotalPrice
+                }).ToList();
+
+            ViewData["CartItems"] = carrito;
+
+            return PartialView("_CarritoPartial", carrito);
+        }
+
+        // Método para agregar un elemento al carrito
+        [HttpPost]
+        public IActionResult AgregarAlCarrito(int eventId, int cantidad = 1)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var evento = _context.Events.FirstOrDefault(e => e.EventId == eventId);
+            if (evento == null || evento.AvailableTickets < cantidad)
+            {
+                return BadRequest("No hay suficientes boletos disponibles.");
+            }
+
+            var cartItem = _context.ShoppingCart.FirstOrDefault(c => c.EventId == eventId && c.UserId == userId);
+
+            if (cartItem == null)
+            {
+                cartItem = new ShoppingCart
+                {
+                    EventId = eventId,
+                    UserId = userId,
+                    TicketsQuantity = cantidad,
+                    PricePerTicket = evento.Price,
+                    TotalPrice = cantidad * evento.Price
+                };
+                _context.ShoppingCart.Add(cartItem);
+            }
+            else
+            {
+                cartItem.TicketsQuantity += cantidad;
+                cartItem.TotalPrice = cartItem.TicketsQuantity * evento.Price;
+                _context.ShoppingCart.Update(cartItem);
+            }
+
+            _context.SaveChanges();
+
+            // Llamar a la función para actualizar el contador del carrito
+            ActualizarCarrito();
+
+            return RedirectToAction("Carrito");
+        }
+
+        // Acción para mostrar la vista principal del carrito
+        public IActionResult Carrito()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var carrito = _context.ShoppingCart
+                .Where(c => c.UserId == userId)
+                .Select(c => new CarritoItemViewModel
+                {
+                    Title = c.Event.Title,
+                    TicketsQuantity = c.TicketsQuantity,
+                    PricePerTicket = c.PricePerTicket,
+                    TotalPrice = c.TotalPrice,
+                    CartId = c.CartId
+                }).ToList();
+
+            return View(carrito);
+        }
+
+        // Acción para procesar la compra directa de una entrada
+        public IActionResult ComprarEntrada(int id)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var evento = _context.Events.FirstOrDefault(e => e.EventId == id);
+            if (evento == null || evento.AvailableTickets <= 0)
+            {
+                return NotFound("Evento no disponible o entradas agotadas.");
+            }
+
+            // Redirige a la vista "ComprarEntrada" donde se selecciona la cantidad de entradas
+            var viewModel = new PurchaseTicketViewModel
+            {
+                EventId = evento.EventId,
+                EventTitle = evento.Title,
+                AvailableTickets = evento.AvailableTickets,
+                Price = evento.Price
+            };
+
+            return View(viewModel);
+        }
+
+        // Acción para procesar la compra cuando el usuario hace clic en "Agregar al carrito"
+        [HttpPost]
+        public IActionResult ComprarEntrada(PurchaseTicketViewModel model)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var evento = _context.Events.FirstOrDefault(e => e.EventId == model.EventId);
+            if (evento == null || evento.AvailableTickets < model.TicketsToBuy)
+            {
+                return BadRequest("No hay suficientes boletos disponibles.");
+            }
+
+            // Reduce los boletos disponibles
+            evento.AvailableTickets -= model.TicketsToBuy;
+
+            // Crea una nueva entrada en el carrito de compras
+            var cartItem = new ShoppingCart
+            {
+                UserId = userId,
+                EventId = evento.EventId,
+                TicketsQuantity = model.TicketsToBuy,
+                PricePerTicket = evento.Price,
+                TotalPrice = evento.Price * model.TicketsToBuy
+            };
+
+            _context.ShoppingCart.Add(cartItem);
+            _context.Events.Update(evento);
+            _context.SaveChanges();
+
+            // Redirige al carrito para completar la compra
+            return RedirectToAction("Carrito");
+        }
+
+        // Acción para procesar el "Checkout" del carrito
+        public IActionResult Checkout()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var carrito = _context.ShoppingCart.Where(c => c.UserId == userId).ToList();
+
+            foreach (var item in carrito)
+            {
+                var evento = _context.Events.FirstOrDefault(e => e.EventId == item.EventId);
+                if (evento != null && evento.AvailableTickets >= item.TicketsQuantity)
+                {
+                    // Se procesa la compra
+                    _context.TicketPurchases.Add(new TicketPurchase
+                    {
+                        UserId = userId,
+                        EventId = item.EventId,
+                        TicketsBought = item.TicketsQuantity,
+                        PurchaseDate = DateTime.Now
+                    });
+
+                    // Se actualizan los boletos disponibles
+                    evento.AvailableTickets -= item.TicketsQuantity;
+                    _context.Events.Update(evento);
+                }
+
+                // Elimina los artículos del carrito
+                _context.ShoppingCart.Remove(item);
+            }
+
+            _context.SaveChanges();
+
+            return RedirectToAction("MisEventos");
+        }
+
+        // Nueva acción para obtener el contador de ítems en el carrito
+        public IActionResult ActualizarCarrito()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { itemCount = 0 });
+            }
+
+            // Contamos el número de eventos distintos en el carrito
+            var itemCount = _context.ShoppingCart
+                .Where(c => c.UserId == userId)
+                .Select(c => c.EventId)
+                .Distinct()
+                .Count();
+
+            return Json(new { itemCount });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

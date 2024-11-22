@@ -65,12 +65,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="MisEventos">Mis Eventos</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-light d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Carrito">
-                                        <img src="https://cdn-icons-png.flaticon.com/512/126/126083.png" alt="Carrito" style="width: 24px; height: 24px;">
-                                        Carrito
-                                    </a>
-                                </li>
                             }
                             @if (Context.Session.GetString("Role") == "Vendedor")
                             {
@@ -80,6 +74,18 @@
                             }
                         </ul>
                         <ul class="navbar-nav ms-auto">
+                            <!-- Ícono del carrito -->
+                            @if (Context.Session.GetString("Role") == "Cliente")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link position-relative d-flex align-items-center" asp-controller="Home" asp-action="Carrito" title="Carrito">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/126/126083.png" alt="Carrito" style="width: 24px; height: 24px;">
+                                        <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            0
+                                        </span>
+                                    </a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link text-light d-flex align-items-center" asp-controller="Auth" asp-action="Logout" title="Cerrar sesión">
                                     <img src="https://cdn.icon-icons.com/icons2/1812/PNG/512/4213459-common-door-exit-logout-out-signout_115411.png" alt="Cerrar sesión" style="width: 24px; height: 24px;">
@@ -103,6 +109,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.13/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Script para actualizar el carrito dinámicamente -->
+    <script>
+        $(document).ready(function () {
+            function actualizarCarrito() {
+                $.get("@Url.Action("ActualizarCarrito", "Home")", function (data) {
+                    $("#cart-count").text(data.itemCount);
+                });
+            }
+
+            // Actualiza el carrito al cargar la página
+            actualizarCarrito();
+
+            // Configuración adicional si es necesario
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
