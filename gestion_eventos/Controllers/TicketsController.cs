@@ -1,9 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using gestion_eventos.Data;
 using gestion_eventos.Models;
+using QuestPDF.Helpers;
 
 namespace gestion_eventos.Controllers
 {
@@ -158,6 +163,57 @@ namespace gestion_eventos.Controllers
         private bool TicketExists(int id)
         {
             return _context.Tickets.Any(e => e.TicketId == id);
+        }
+
+        // NUEVA ACCIÓN: Exportar lista de tickets a PDF con diseño mejorado
+        public IActionResult ExportarPDF()
+        {
+            var tickets = _context.Tickets.Include(t => t.Event).Include(t => t.Person).ToList();
+
+            using (var stream = new MemoryStream())
+            {
+                var document = QuestPDF.Fluent.Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(PageSizes.A4);
+                        page.Margin(30);
+                        page.Header().AlignCenter().Text("Lista de Entradas").Bold().FontSize(20);
+
+                        page.Content().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Border(1).BorderColor(Colors.Black).AlignCenter().Padding(5).Text("ID").Bold();
+                                header.Cell().Border(1).BorderColor(Colors.Black).AlignCenter().Padding(5).Text("Evento").Bold();
+                                header.Cell().Border(1).BorderColor(Colors.Black).AlignCenter().Padding(5).Text("Persona").Bold();
+                                header.Cell().Border(1).BorderColor(Colors.Black).AlignCenter().Padding(5).Text("Fecha de Compra").Bold();
+                            });
+
+                            foreach (var ticket in tickets)
+                            {
+                                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Padding(5).Text(ticket.TicketId.ToString());
+                                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Padding(5).Text(ticket.Event.Title);
+                                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Padding(5).Text(ticket.Person.FullName);
+                                table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Padding(5).Text(ticket.PurchaseDate.ToShortDateString());
+                            }
+                        });
+
+                        page.Footer().AlignCenter().Text($"Generado el {DateTime.Now:dd/MM/yyyy}");
+                    });
+                });
+
+                document.GeneratePdf(stream);
+                return File(stream.ToArray(), "application/pdf", "ListaDeTickets.pdf");
+            }
         }
     }
 }

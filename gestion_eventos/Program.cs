@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using gestion_eventos.Data;
+using QuestPDF.Infrastructure; // Importar QuestPDF
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
+
+// **Aceptar la licencia de QuestPDF**
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
