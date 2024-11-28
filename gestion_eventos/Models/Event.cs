@@ -32,5 +32,9 @@ namespace gestion_eventos.Models
         public ICollection<Ticket> Tickets { get; set; }
         public ICollection<Attendance> Attendances { get; set; }
         public ICollection<Snack> Snacks { get; set; }
+
+
+        [Url(ErrorMessage = "Debe ser una URL válida.")]
+        public string? ImagenURL { get; set; } // Nueva propiedad
     }
 }

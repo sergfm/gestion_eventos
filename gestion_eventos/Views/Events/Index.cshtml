@@ -8,11 +8,13 @@
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Crear Nuevo Evento</a>
+    <a asp-action="ExportarExcel" class="btn btn-success">Exportar Excel</a>
 </p>
 
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>Imagen</th>
             <th>@Html.DisplayNameFor(model => model.Title)</th>
             <th>@Html.DisplayNameFor(model => model.Date)</th>
             <th>@Html.DisplayNameFor(model => model.Location)</th>
@@ -24,6 +26,17 @@
         @foreach (var item in Model)
         {
             <tr>
+                <!-- Nueva celda para mostrar la imagen -->
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImagenURL))
+                    {
+                        <img src="@item.ImagenURL" alt="Imagen del Evento" style="width: 50px; height: auto; border-radius: 5px;" />
+                    }
+                    else
+                    {
+                        <span>Sin Imagen</span>
+                    }
+                </td>
                 <td>@Html.DisplayFor(modelItem => item.Title)</td>
                 <td>@Html.DisplayFor(modelItem => item.Date)</td>
                 <td>@Html.DisplayFor(modelItem => item.Location)</td>

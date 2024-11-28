@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using gestion_eventos.Data;
 using gestion_eventos.Models;
+using ClosedXML.Excel;
+using System.IO;
+using System.Net.Http;
+using ClosedXML.Excel.Drawings;
 
 namespace gestion_eventos.Controllers
 {
@@ -17,8 +21,6 @@ namespace gestion_eventos.Controllers
             _context = context;
         }
 
-        // Acciones de vista existentes (no modificadas)
-
         public async Task<IActionResult> Index()
         {
             return View(await _context.Events.ToListAsync());
@@ -29,11 +31,6 @@ namespace gestion_eventos.Controllers
             if (id == null)
             {
                 return NotFound();
-            }
-
-            if (HttpContext.Session.GetString("UserId") == null)
-            {
-                return RedirectToAction("Login", "Auth");
             }
 
             var eventItem = await _context.Events
@@ -53,8 +50,32 @@ namespace gestion_eventos.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,Title,Description,Date,Location,AvailableTickets")] Event eventItem)
+        public async Task<IActionResult> Create([Bind("EventId,Title,Description,Date,Location,AvailableTickets,ImagenURL")] Event eventItem)
         {
+            if (!string.IsNullOrEmpty(eventItem.ImagenURL))
+            {
+                // Descargar y guardar la imagen en wwwroot/imagenes
+                string imagesFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes");
+                if (!Directory.Exists(imagesFolderPath))
+                {
+                    Directory.CreateDirectory(imagesFolderPath);
+                }
+
+                string fileName = $"{Guid.NewGuid()}.jpeg"; // Nombre único para la imagen
+                string filePath = Path.Combine(imagesFolderPath, fileName);
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync(eventItem.ImagenURL);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var imageBytes = await response.Content.ReadAsByteArrayAsync();
+                        await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+                        eventItem.ImagenURL = $"/imagenes/{fileName}"; // Actualizar con la ruta interna
+                    }
+                }
+            }
+
             if (true)
             {
                 _context.Add(eventItem);
@@ -81,11 +102,35 @@ namespace gestion_eventos.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,Date,Location,AvailableTickets")] Event eventItem)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,Date,Location,AvailableTickets,ImagenURL")] Event eventItem)
         {
             if (id != eventItem.EventId)
             {
                 return NotFound();
+            }
+
+            if (!string.IsNullOrEmpty(eventItem.ImagenURL))
+            {
+                // Descargar y guardar la nueva imagen en wwwroot/imagenes
+                string imagesFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes");
+                if (!Directory.Exists(imagesFolderPath))
+                {
+                    Directory.CreateDirectory(imagesFolderPath);
+                }
+
+                string fileName = $"{Guid.NewGuid()}.jpeg";
+                string filePath = Path.Combine(imagesFolderPath, fileName);
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync(eventItem.ImagenURL);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var imageBytes = await response.Content.ReadAsByteArrayAsync();
+                        await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+                        eventItem.ImagenURL = $"/imagenes/{fileName}";
+                    }
+                }
             }
 
             if (true)
@@ -146,88 +191,67 @@ namespace gestion_eventos.Controllers
             return _context.Events.Any(e => e.EventId == id);
         }
 
-        // --- API Methods ---
-
-        // GET: api/events
-        [HttpGet("api/events")]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        // Exportar eventos a Excel con imágenes
+        public IActionResult ExportarExcel()
         {
-            return await _context.Events.ToListAsync();
-        }
+            var eventos = _context.Events.ToList();
 
-        // GET: api/events/5
-        [HttpGet("api/events/{id}")]
-        public async Task<ActionResult<Event>> GetEvent(int id)
-        {
-            var eventItem = await _context.Events.FindAsync(id);
-
-            if (eventItem == null)
+            using (var workbook = new XLWorkbook())
             {
-                return NotFound();
-            }
+                var worksheet = workbook.Worksheets.Add("Eventos");
+                var currentRow = 1;
 
-            return eventItem;
-        }
+                // Encabezados
+                worksheet.Cell(currentRow, 1).Value = "ID";
+                worksheet.Cell(currentRow, 2).Value = "Título";
+                worksheet.Cell(currentRow, 3).Value = "Descripción";
+                worksheet.Cell(currentRow, 4).Value = "Fecha";
+                worksheet.Cell(currentRow, 5).Value = "Ubicación";
+                worksheet.Cell(currentRow, 6).Value = "Entradas Disponibles";
+                worksheet.Cell(currentRow, 7).Value = "Imagen";
 
-        // POST: api/events
-        [HttpPost("api/events")]
-        public async Task<ActionResult<Event>> PostEvent([FromBody] Event eventItem)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                worksheet.Column(7).Width = 25; // Ajustar ancho para imágenes
 
-            _context.Events.Add(eventItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetEvent), new { id = eventItem.EventId }, eventItem);
-        }
-
-        // PUT: api/events/5
-        [HttpPut("api/events/{id}")]
-        public async Task<IActionResult> PutEvent(int id, [FromBody] Event eventItem)
-        {
-            if (id != eventItem.EventId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(eventItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EventExists(id))
+                // Iterar sobre los eventos y llenar la hoja
+                foreach (var evento in eventos)
                 {
-                    return NotFound();
+                    currentRow++;
+                    worksheet.Cell(currentRow, 1).Value = evento.EventId;
+                    worksheet.Cell(currentRow, 2).Value = evento.Title;
+                    worksheet.Cell(currentRow, 3).Value = evento.Description;
+                    worksheet.Cell(currentRow, 4).Value = evento.Date.ToString("dd/MM/yyyy HH:mm");
+                    worksheet.Cell(currentRow, 5).Value = evento.Location;
+                    worksheet.Cell(currentRow, 6).Value = evento.AvailableTickets;
+
+                    // Insertar imagen si existe
+                    if (!string.IsNullOrEmpty(evento.ImagenURL))
+                    {
+                        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", evento.ImagenURL.TrimStart('/'));
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            var cell = worksheet.Cell(currentRow, 7); // Obtener celda para imagen
+                            var picture = worksheet.AddPicture(imagePath)
+                                .MoveTo(cell); // Posicionar imagen en celda
+
+                            // Ajustar tamaño de imagen
+                            picture.Scale(0.02); // Ajustar escala según sea necesario
+                        }
+                    }
                 }
-                else
+
+                worksheet.Columns().AdjustToContents(); // Ajustar columnas automáticamente
+
+                // Guardar Excel en memoria y devolverlo como archivo
+                using (var stream = new MemoryStream())
                 {
-                    throw;
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ListaDeEventos.xlsx");
                 }
             }
-
-            return NoContent();
         }
 
-        // DELETE: api/events/5
-        [HttpDelete("api/events/{id}")]
-        public async Task<IActionResult> DeleteEvent(int id)
-        {
-            var eventItem = await _context.Events.FindAsync(id);
-            if (eventItem == null)
-            {
-                return NotFound();
-            }
 
-            _context.Events.Remove(eventItem);
-            await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
     }
 }
