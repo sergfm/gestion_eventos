@@ -54,14 +54,13 @@ namespace gestion_eventos.Controllers
         {
             if (!string.IsNullOrEmpty(eventItem.ImagenURL))
             {
-                // Descargar y guardar la imagen en wwwroot/imagenes
                 string imagesFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes");
                 if (!Directory.Exists(imagesFolderPath))
                 {
                     Directory.CreateDirectory(imagesFolderPath);
                 }
 
-                string fileName = $"{Guid.NewGuid()}.jpeg"; // Nombre único para la imagen
+                string fileName = $"{Guid.NewGuid()}.jpeg";
                 string filePath = Path.Combine(imagesFolderPath, fileName);
 
                 using (var client = new HttpClient())
@@ -71,7 +70,7 @@ namespace gestion_eventos.Controllers
                     {
                         var imageBytes = await response.Content.ReadAsByteArrayAsync();
                         await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
-                        eventItem.ImagenURL = $"/imagenes/{fileName}"; // Actualizar con la ruta interna
+                        eventItem.ImagenURL = $"/imagenes/{fileName}";
                     }
                 }
             }
@@ -111,7 +110,6 @@ namespace gestion_eventos.Controllers
 
             if (!string.IsNullOrEmpty(eventItem.ImagenURL))
             {
-                // Descargar y guardar la nueva imagen en wwwroot/imagenes
                 string imagesFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes");
                 if (!Directory.Exists(imagesFolderPath))
                 {
@@ -173,7 +171,7 @@ namespace gestion_eventos.Controllers
             return View(eventItem);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -201,7 +199,6 @@ namespace gestion_eventos.Controllers
                 var worksheet = workbook.Worksheets.Add("Eventos");
                 var currentRow = 1;
 
-                // Encabezados
                 worksheet.Cell(currentRow, 1).Value = "ID";
                 worksheet.Cell(currentRow, 2).Value = "Título";
                 worksheet.Cell(currentRow, 3).Value = "Descripción";
@@ -210,9 +207,8 @@ namespace gestion_eventos.Controllers
                 worksheet.Cell(currentRow, 6).Value = "Entradas Disponibles";
                 worksheet.Cell(currentRow, 7).Value = "Imagen";
 
-                worksheet.Column(7).Width = 25; // Ajustar ancho para imágenes
+                worksheet.Column(7).Width = 25;
 
-                // Iterar sobre los eventos y llenar la hoja
                 foreach (var evento in eventos)
                 {
                     currentRow++;
@@ -223,25 +219,21 @@ namespace gestion_eventos.Controllers
                     worksheet.Cell(currentRow, 5).Value = evento.Location;
                     worksheet.Cell(currentRow, 6).Value = evento.AvailableTickets;
 
-                    // Insertar imagen si existe
                     if (!string.IsNullOrEmpty(evento.ImagenURL))
                     {
                         var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", evento.ImagenURL.TrimStart('/'));
                         if (System.IO.File.Exists(imagePath))
                         {
-                            var cell = worksheet.Cell(currentRow, 7); // Obtener celda para imagen
+                            var cell = worksheet.Cell(currentRow, 7);
                             var picture = worksheet.AddPicture(imagePath)
-                                .MoveTo(cell); // Posicionar imagen en celda
-
-                            // Ajustar tamaño de imagen
-                            picture.Scale(0.02); // Ajustar escala según sea necesario
+                                .MoveTo(cell)
+                                .Scale(0.02);
                         }
                     }
                 }
 
-                worksheet.Columns().AdjustToContents(); // Ajustar columnas automáticamente
+                worksheet.Columns().AdjustToContents();
 
-                // Guardar Excel en memoria y devolverlo como archivo
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
@@ -250,8 +242,5 @@ namespace gestion_eventos.Controllers
                 }
             }
         }
-
-
-
     }
 }

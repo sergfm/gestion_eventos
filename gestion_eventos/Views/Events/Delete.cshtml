@@ -25,7 +25,7 @@
     </dl>
 </div>
 
-<form asp-action="DeleteConfirmed" method="post">
+<form asp-action="DeleteConfirmed" asp-route-id="@Model.EventId" method="post">
     <input type="hidden" asp-for="EventId" />
     <div class="form-group">
         <input type="submit" value="Eliminar" class="btn btn-danger" /> |

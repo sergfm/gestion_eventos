@@ -1,13 +1,104 @@
 ﻿@{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Dashboard Admin";
 }
 
 <div class="container mt-4">
-    <div class="jumbotron text-center bg-light p-5">
-        <h1 class="display-4">Bienvenido a Gestion de Eventos</h1>
-        <p class="lead">Gestiona tus eventos, personas, entradas, asistencia y más de manera eficiente.</p>
-        <hr class="my-4">
-        <p>Utiliza el menú de navegación para explorar las funcionalidades.</p>
-        <a class="btn btn-primary btn-lg" href="#" role="button">Saber más</a>
+    <h1 class="text-center mb-4">Dashboard de Administración</h1>
+
+    <div class="row">
+        <!-- Cuadrante: Total de Eventos -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3 shadow-sm">
+                <div class="card-header">Total de Eventos</div>
+                <div class="card-body">
+                    <h2 class="card-title text-center">@ViewData["TotalEventos"]</h2>
+                    <p class="card-text text-center">Eventos registrados</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuadrante: Entradas Vendidas -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3 shadow-sm">
+                <div class="card-header">Entradas Vendidas</div>
+                <div class="card-body">
+                    <h2 class="card-title text-center">@ViewData["EntradasVendidas"]</h2>
+                    <p class="card-text text-center">Tickets vendidos en total</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuadrante: Usuarios Registrados -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3 shadow-sm">
+                <div class="card-header">Usuarios Registrados</div>
+                <div class="card-body">
+                    <h2 class="card-title text-center">@ViewData["UsuariosRegistrados"]</h2>
+                    <p class="card-text text-center">Personas registradas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cuadrante: Próximos Eventos -->
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3 shadow-sm">
+                <div class="card-header">Próximos Eventos</div>
+                <div class="card-body">
+                    <h2 class="card-title text-center">@ViewData["ProximosEventos"]</h2>
+                    <p class="card-text text-center">Eventos en el futuro</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección adicional: Gráficos o estadísticas -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    Estadísticas Resumidas
+                </div>
+                <div class="card-body">
+                    <canvas id="eventosChart" style="width: 100%; height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('eventosChart').getContext('2d');
+        const eventosChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Eventos', 'Entradas', 'Usuarios', 'Próximos Eventos'],
+                datasets: [{
+                    label: 'Estadísticas',
+                    data: [@ViewData["TotalEventos"], @ViewData["EntradasVendidas"], @ViewData["UsuariosRegistrados"], @ViewData["ProximosEventos"]],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(255, 99, 132, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}

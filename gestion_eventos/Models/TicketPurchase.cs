@@ -19,6 +19,7 @@ namespace gestion_eventos.Models
         public int TicketsBought { get; set; }
 
         public DateTime PurchaseDate { get; set; }
+        public bool IsPresent { get; set; } // Propiedad para asistencia
 
         // Relación con el modelo Event
         public Event Event { get; set; }

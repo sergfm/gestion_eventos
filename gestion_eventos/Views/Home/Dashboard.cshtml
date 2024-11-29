@@ -1,0 +1,147 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Header -->
+        <div class="col-12 d-flex justify-content-between align-items-center py-3">
+            <h4 class="text-primary">Dashboard</h4>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bell text-secondary me-3"></i>
+                <i class="fas fa-envelope text-secondary me-3"></i>
+                <img src="https://via.placeholder.com/40" class="rounded-circle" alt="Profile">
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Total de Eventos</h6>
+                        <p class="h4 text-primary">@ViewData["TotalEventos"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Entradas Vendidas</h6>
+                        <p class="h4 text-success">@ViewData["EntradasVendidas"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Usuarios Registrados</h6>
+                        <p class="h4 text-warning">@ViewData["UsuariosRegistrados"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6>Personas Asistieron</h6>
+                        <p class="h4 text-danger">@ViewData["PersonasAsistieron"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row g-3">
+            <!-- Line Chart -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-center">Entradas Vendidas</h6>
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doughnut Chart -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-center">Entradas Vendidas vs Disponibles</h6>
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Line Chart: Entradas Vendidas (Por cada compra)
+        const lineData = @Html.Raw(Json.Serialize(ViewData["GraficoMensual"]));
+        const lineLabels = lineData.map(item => item.Title);
+        const lineValues = lineData.map(item => item.Vendidas);
+
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: lineLabels,
+                datasets: [{
+                    label: 'Entradas Vendidas',
+                    data: lineValues,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Doughnut Chart: Entradas Vendidas vs Disponibles
+        const doughnutData = @Html.Raw(Json.Serialize(ViewData["GraficoEventos"]));
+        const doughnutLabels = doughnutData.map(item => item.Title);
+        const doughnutVendidas = doughnutData.map(item => item.Vendidas);
+        const doughnutDisponibles = doughnutData.map(item => item.Disponibles);
+
+        new Chart(document.getElementById('doughnutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: doughnutLabels,
+                datasets: [
+                    {
+                        label: 'Entradas Vendidas',
+                        data: doughnutVendidas,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    },
+                    {
+                        label: 'Entradas Disponibles',
+                        data: doughnutDisponibles,
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    </script>
+}
