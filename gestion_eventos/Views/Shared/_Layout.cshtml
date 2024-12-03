@@ -114,15 +114,13 @@
     <script>
         $(document).ready(function () {
             function actualizarCarrito() {
-                $.get("@Url.Action("ActualizarCarrito", "Home")", function (data) {
-                    $("#cart-count").text(data.itemCount);
+                $.get("@Url.Action("ObtenerCantidadCarrito", "Home")", function (data) {
+                    $("#cart-count").text(data);
                 });
             }
 
             // Actualiza el carrito al cargar la página
             actualizarCarrito();
-
-            // Configuración adicional si es necesario
         });
     </script>
 
