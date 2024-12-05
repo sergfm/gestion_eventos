@@ -2,73 +2,62 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container-fluid">
+<div class="container-fluid" style="background-color: #f4f6f9; min-height: 100vh; padding: 20px;">
     <!-- Main Content -->
     <div class="row">
         <!-- Header -->
         <div class="col-12 d-flex justify-content-between align-items-center py-3">
-            <h4 class="text-primary">Dashboard</h4>
+            <h4 class="text-dark fw-bold">Dashboard</h4>
             <div class="d-flex align-items-center">
-                <i class="fas fa-bell text-secondary me-3"></i>
-                <i class="fas fa-envelope text-secondary me-3"></i>
-                <img src="https://via.placeholder.com/40" class="rounded-circle" alt="Profile">
+                <i class="fas fa-bell text-secondary me-3 fs-5"></i>
+                <i class="fas fa-envelope text-secondary me-3 fs-5"></i>
+                <img src="https://via.placeholder.com/40" class="rounded-circle border border-secondary" alt="Profile">
             </div>
         </div>
 
         <!-- Cards -->
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-4">
             <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm">
+                <div class="card dashboard-card text-center border-0 shadow" style="background: linear-gradient(135deg, #74ebd5, #acb6e5); color: black;">
                     <div class="card-body">
-                        <h6>Total de Eventos</h6>
-                        <p class="h4 text-primary">@ViewData["TotalEventos"]</p>
+                        <h6 class="fw-bold" style="color: black;">Total de Eventos</h6>
+                        <p class="h3 fw-bold" style="color: black;">@ViewData["TotalEventos"]</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm">
+                <div class="card dashboard-card text-center border-0 shadow" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color: black;">
                     <div class="card-body">
-                        <h6>Entradas Vendidas</h6>
-                        <p class="h4 text-success">@ViewData["EntradasVendidas"]</p>
+                        <h6 class="fw-bold" style="color: black;">Entradas Vendidas</h6>
+                        <p class="h3 fw-bold" style="color: black;">@ViewData["EntradasVendidas"]</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm">
+                <div class="card dashboard-card text-center border-0 shadow" style="background: linear-gradient(135deg, #fbc2eb, #a6c1ee); color: black;">
                     <div class="card-body">
-                        <h6>Usuarios Registrados</h6>
-                        <p class="h4 text-warning">@ViewData["UsuariosRegistrados"]</p>
+                        <h6 class="fw-bold" style="color: black;">Usuarios Registrados</h6>
+                        <p class="h3 fw-bold" style="color: black;">@ViewData["UsuariosRegistrados"]</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm">
+                <div class="card dashboard-card text-center border-0 shadow" style="background: linear-gradient(135deg, #fdcbf1, #e6dee9); color: black;">
                     <div class="card-body">
-                        <h6>Personas Asistieron</h6>
-                        <p class="h4 text-danger">@ViewData["PersonasAsistieron"]</p>
+                        <h6 class="fw-bold" style="color: black;">Personas Asistieron</h6>
+                        <p class="h3 fw-bold" style="color: black;">@ViewData["PersonasAsistieron"]</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="row g-3">
-            <!-- Line Chart -->
-            <div class="col-md-6">
+        <!-- Circular Chart -->
+        <div class="row g-4 mt-5">
+            <div class="col-md-6 offset-md-3">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-center">Entradas Vendidas</h6>
-                        <canvas id="lineChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Doughnut Chart -->
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h6 class="text-center">Entradas Vendidas vs Disponibles</h6>
-                        <canvas id="doughnutChart"></canvas>
+                        <h6 class="text-center fw-bold text-primary">Eventos Disponibles vs Usuarios Registrados</h6>
+                        <canvas id="circularChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -76,72 +65,44 @@
     </div>
 </div>
 
+<style>
+    .dashboard-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+        }
+</style>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Line Chart: Entradas Vendidas (Por cada compra)
-        const lineData = @Html.Raw(Json.Serialize(ViewData["GraficoMensual"]));
-        const lineLabels = lineData.map(item => item.Title);
-        const lineValues = lineData.map(item => item.Vendidas);
+        document.addEventListener("DOMContentLoaded", function () {
+            // Circular Chart: Eventos Disponibles vs Usuarios Registrados
+            const eventosDisponibles = @ViewData["TotalEventos"];
+            const usuariosRegistrados = @ViewData["UsuariosRegistrados"];
 
-        new Chart(document.getElementById('lineChart'), {
-            type: 'line',
-            data: {
-                labels: lineLabels,
-                datasets: [{
-                    label: 'Entradas Vendidas',
-                    data: lineValues,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
+            new Chart(document.getElementById('circularChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Eventos Disponibles', 'Usuarios Registrados'],
+                    datasets: [{
+                        data: [eventosDisponibles, usuariosRegistrados],
+                        backgroundColor: ['#74ebd5', '#acb6e5'],
+                        hoverBackgroundColor: ['#4cc9f0', '#4361ee']
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
                     }
                 }
-            }
-        });
-
-        // Doughnut Chart: Entradas Vendidas vs Disponibles
-        const doughnutData = @Html.Raw(Json.Serialize(ViewData["GraficoEventos"]));
-        const doughnutLabels = doughnutData.map(item => item.Title);
-        const doughnutVendidas = doughnutData.map(item => item.Vendidas);
-        const doughnutDisponibles = doughnutData.map(item => item.Disponibles);
-
-        new Chart(document.getElementById('doughnutChart'), {
-            type: 'doughnut',
-            data: {
-                labels: doughnutLabels,
-                datasets: [
-                    {
-                        label: 'Entradas Vendidas',
-                        data: doughnutVendidas,
-                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                    },
-                    {
-                        label: 'Entradas Disponibles',
-                        data: doughnutDisponibles,
-                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
+            });
         });
     </script>
 }

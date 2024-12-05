@@ -239,7 +239,6 @@ namespace gestion_eventos.Controllers
             return Json(cantidad);
         }
 
-        // Acción para eliminar un ítem del carrito
         public IActionResult EliminarDelCarrito(int cartId)
         {
             var cartItem = _context.ShoppingCart.FirstOrDefault(c => c.CartId == cartId);
@@ -252,7 +251,6 @@ namespace gestion_eventos.Controllers
             return RedirectToAction("Carrito");
         }
 
-        // Acción para eliminar un evento de Mis Eventos
         public IActionResult EliminarEvento(int eventId)
         {
             var userId = HttpContext.Session.GetString("UserId");
@@ -271,6 +269,20 @@ namespace gestion_eventos.Controllers
             }
 
             return RedirectToAction("MisEventos");
+        }
+
+        [HttpGet]
+        public JsonResult ObtenerEstadisticas()
+        {
+            var estadisticas = new
+            {
+                TotalEventos = _context.Events.Count(),
+                EntradasVendidas = _context.TicketPurchases.Sum(tp => tp.TicketsBought),
+                UsuariosRegistrados = _context.People.Count(),
+                ProximosEventos = _context.Events.Count(e => e.Date > DateTime.Now)
+            };
+
+            return Json(estadisticas);
         }
     }
 }
